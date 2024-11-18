@@ -1,3 +1,4 @@
+//file name Home.js (in src folder)
 import { Users } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import LeaderboardTable from './Components/LeaderboardTable';
@@ -47,7 +48,17 @@ export default function Home() {
    return () => clearInterval(interval);
  }, []);
 
-
+ const hasEnoughData = () => {
+  if (!leaderboardData.participants.length) return false;
+  
+  // Check if we have at least one day of data (excluding future dates)
+  const firstParticipant = leaderboardData.participants[0];
+  const completedDays = Object.values(firstParticipant.dailySteps)
+    .filter(steps => steps > 0)
+    .length;
+    
+  return completedDays >= 1;
+};
 
 
  // Calculate total goal and progress
@@ -139,45 +150,57 @@ export default function Home() {
          </div>
 
 
-         {/* Projected Winner Panel */}
-         <div className="bg-slate-800 rounded-xl p-6">
-           <h2 className="text-lg font-semibold text-center mb-8">Projected Winner</h2>
-           <div className="flex flex-col items-center">
-             <div className="relative mb-6">
-               <div className="w-24 h-24 rounded-full bg-slate-700 border-2 border-cyan-400 flex items-center justify-center">
-                 <span className="text-3xl font-bold text-cyan-400">{projectedWinner?.name?.charAt(0).toUpperCase() || '?'}</span>
-               </div>
-               <div className="absolute -top-2 -right-2 bg-cyan-400 text-slate-900 w-8 h-8 rounded-full flex items-center justify-center font-bold">
-                 1
-               </div>
-             </div>
+         {hasEnoughData() ? (
+            <div className="bg-slate-800 rounded-xl p-6">
+              <h2 className="text-lg font-semibold text-center mb-8">Projected Winner</h2>
+              <div className="flex flex-col items-center">
+                <div className="relative mb-6">
+                  <div className="w-24 h-24 rounded-full bg-slate-700 border-2 border-cyan-400 flex items-center justify-center">
+                    <span className="text-3xl font-bold text-cyan-400">
+                      {projectedWinner?.name?.charAt(0).toUpperCase() || '?'}
+                    </span>
+                  </div>
+                  <div className="absolute -top-2 -right-2 bg-cyan-400 text-slate-900 w-8 h-8 rounded-full flex items-center justify-center font-bold">
+                    1
+                  </div>
+                </div>
 
+                <div className="text-center mb-6">
+                  <h3 className="text-xl font-semibold mb-1">
+                    {projectedWinner?.name?.charAt(0).toUpperCase() + projectedWinner?.name?.slice(1)}
+                  </h3>
+                  <p className="text-gray-400">
+                    {projectedWinner?.averageSteps?.toLocaleString()} steps/day
+                  </p>
+                </div>
 
-             <div className="text-center mb-6">
-               <h3 className="text-xl font-semibold mb-1">
-                 {projectedWinner?.name?.charAt(0).toUpperCase() + projectedWinner?.name?.slice(1)}
-               </h3>
-               <p className="text-gray-400">{projectedWinner?.averageSteps?.toLocaleString()} steps/day</p>
-             </div>
-
-
-             <div className="relative w-full px-4">
-               <div className="w-full bg-slate-700 rounded-full h-2 mb-2">
-                 <div
-                   className="bg-cyan-400 h-2 rounded-full transition-all duration-500"
-                   style={{
-                     width: `${Math.min(winnerProgress, 100)}%`,
-                     maxWidth: '100%',
-                   }}
-                 />
-               </div>
-               <p className="text-sm text-center text-gray-400">{Math.round(winnerProgress)}% to goal</p>
-             </div>
-           </div>
-         </div>
-       </div>
-       <LeaderboardTable participants={leaderboardData.participants} />
-     </div>
-   </main>
- );
+                <div className="relative w-full px-4">
+                  <div className="w-full bg-slate-700 rounded-full h-2 mb-2">
+                    <div
+                      className="bg-cyan-400 h-2 rounded-full transition-all duration-500"
+                      style={{
+                        width: `${Math.min(winnerProgress, 100)}%`,
+                        maxWidth: '100%',
+                      }}
+                    />
+                  </div>
+                  <p className="text-sm text-center text-gray-400">
+                    {Math.round(winnerProgress)}% to goal
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="bg-slate-800 rounded-xl p-6 flex items-center justify-center">
+              <p className="text-gray-400 text-center">
+                Projected winner will be shown after the first day of data
+              </p>
+            </div>
+          )}
+        </div>
+        
+        <LeaderboardTable participants={leaderboardData.participants} />
+      </div>
+    </main>
+  );
 }
