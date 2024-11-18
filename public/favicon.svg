@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#22d3ee" />
+  
+  <!-- Footsteps forming a circular pattern -->
+  <g transform="rotate(-30 32 32)">
+    <!-- First footstep -->
+    <path d="M28 20c0 0-4-0.5-4 2.5c0 3 2 4.5 4 4.5s4-1.5 4-3.5S28 20 28 20z" fill="#0f172a"/>
+    <circle cx="25" cy="24" r="1" fill="#0f172a"/>
+    
+    <!-- Second footstep -->
+    <path d="M38 32c0 0-4-0.5-4 2.5c0 3 2 4.5 4 4.5s4-1.5 4-3.5S38 32 38 32z" fill="#0f172a"/>
+    <circle cx="35" cy="36" r="1" fill="#0f172a"/>
+    
+    <!-- Third footstep -->
+    <path d="M28 44c0 0-4-0.5-4 2.5c0 3 2 4.5 4 4.5s4-1.5 4-3.5S28 44 28 44z" fill="#0f172a"/>
+    <circle cx="25" cy="48" r="1" fill="#0f172a"/>
+  </g>
+  
+  <!-- Trophy small icon -->
+  <g transform="translate(32 32) scale(0.4) translate(-32 -32)">
+    <path d="M42 24h4c1.1 0 2-.9 2-2v-4c0-1.1-.9-2-2-2h-4M22 24h-4c-1.1 0-2-.9-2-2v-4c0-1.1.9-2 2-2h4" fill="none" stroke="#0f172a" strokeWidth="3" strokeLinecap="round"/>
+    <path d="M24 44v-4c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v4M32 38v-6M26 16h20v6c0 5.5-4.5 10-10 10s-10-4.5-10-10v-6z" fill="none" stroke="#0f172a" strokeWidth="3" strokeLinecap="round"/>
+  </g>
+</svg>
