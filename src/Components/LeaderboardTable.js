@@ -8,11 +8,25 @@ export default function LeaderboardTable({ participants = [] }) {
 
   const getYesterdaySteps = (participant) => {
     if (!participant?.dailySteps) return '-';
-    const yesterday = new Date();
+    
+    // Get today's date in local time
+    const today = new Date();
+    // Get yesterday's date in local time
+    const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
-    const dateStr = yesterday.toISOString().split('T')[0];
-    const steps = participant.dailySteps?.[dateStr];
-    return steps ? steps.toLocaleString() : '-';
+    
+    // Format to YYYY-MM-DD to match your data format
+    const dateStr = yesterday.toISOString().slice(0, 10);
+    
+    // If no data for yesterday, try getting today's data instead
+    if (!participant.dailySteps[dateStr] && participant.dailySteps[today.toISOString().slice(0, 10)]) {
+      return participant.dailySteps[today.toISOString().slice(0, 10)].toLocaleString();
+    }
+    
+    // Return yesterday's steps if available
+    return participant.dailySteps[dateStr] 
+      ? participant.dailySteps[dateStr].toLocaleString() 
+      : '-';
   };
 
   const calculateGoalPercentage = (participant) => {
