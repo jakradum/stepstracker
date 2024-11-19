@@ -185,7 +185,7 @@ export default function Home() {
                     />
                   </div>
                   <p className="text-sm text-center text-gray-400">
-                    {Math.round(winnerProgress)}% to goal
+                    {Math.round(winnerProgress)}% over goal
                   </p>
                 </div>
               </div>

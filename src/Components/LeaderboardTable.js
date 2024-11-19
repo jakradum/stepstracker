@@ -15,21 +15,23 @@ export default function LeaderboardTable({ participants = [] }) {
     return steps ? steps.toLocaleString() : '-';
   };
 
+  const calculateGoalPercentage = (participant) => {
+    const dailyGoal = participant.name.toLowerCase() === 'thiruvai' ? 7000 : 10000;
+    const percentage = (participant.averageSteps / dailyGoal) * 100;
+    return percentage;
+  };
+
   const getParticipantStatus = (participant) => {
     if (!participant?.dailySteps) return null;
     
-    // Set target based on participant name
     const targetSteps = participant.name.toLowerCase() === 'thiruvai' ? 7000 : 10000;
     
-    // Only count days that have actual data (not future dates with 0)
     const daysBelow = Object.entries(participant.dailySteps)
       .filter(([date, steps]) => {
-        // Only consider days with actual step data (non-zero)
         return steps !== 0 && steps !== null && steps < targetSteps;
       })
       .length;
 
-    // Early return for Thiruvai with custom messaging
     if (participant.name.toLowerCase() === 'thiruvai') {
       if (daysBelow > 2) {
         return <span className="ml-2 text-xs px-2 py-1 bg-red-900/50 text-red-400 rounded">Disqualified (7k)</span>;
@@ -41,7 +43,6 @@ export default function LeaderboardTable({ participants = [] }) {
       return null;
     }
 
-    // Standard 10k logic for everyone else
     if (daysBelow > 2) {
       return <span className="ml-2 text-xs px-2 py-1 bg-red-900/50 text-red-400 rounded">Disqualified</span>;
     } else if (daysBelow === 2) {
@@ -51,6 +52,9 @@ export default function LeaderboardTable({ participants = [] }) {
     }
     return null;
   };
+
+  // Sort participants by goal percentage
+  const sortedParticipants = [...participants].sort((a, b) => calculateGoalPercentage(b) - calculateGoalPercentage(a));
 
   return (
     <div className="bg-slate-800 rounded-xl p-6 mt-6">
@@ -62,12 +66,13 @@ export default function LeaderboardTable({ participants = [] }) {
               <th className="pb-4 pl-4">Rank</th>
               <th className="pb-4">Name</th>
               <th className="pb-4 text-right">Total Steps</th>
-              <th className="pb-4 text-right">Rolling Average</th>
+              <th className="pb-4 text-right">Daily Average</th>
+              <th className="pb-4 text-right">Goal Achievement</th>
               <th className="pb-4 text-right pr-4">Yesterday</th>
             </tr>
           </thead>
           <tbody>
-            {participants.map((participant, index) => (
+            {sortedParticipants.map((participant, index) => (
               <tr
                 key={participant.name ?? index}
                 className="border-b border-slate-700 hover:bg-slate-700/50 transition-colors cursor-pointer"
@@ -104,6 +109,17 @@ export default function LeaderboardTable({ participants = [] }) {
                   {participant.totalSteps?.toLocaleString() ?? '-'}
                 </td>
                 <td className="py-4 text-right">{calculateAverage(participant)}</td>
+                <td className="py-4 text-right">
+                  <span className={`${
+                    calculateGoalPercentage(participant) >= 100 
+                      ? 'text-green-400' 
+                      : calculateGoalPercentage(participant) >= 90 
+                        ? 'text-yellow-400' 
+                        : 'text-gray-400'
+                  }`}>
+                    {calculateGoalPercentage(participant).toFixed(1)}%
+                  </span>
+                </td>
                 <td className="py-4 text-right pr-4">
                   {getYesterdaySteps(participant)}
                 </td>
