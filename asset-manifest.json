@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "/stepstracker/static/css/main.64ac80f7.css",
-    "main.js": "/stepstracker/static/js/main.c5ddd38f.js",
+    "main.css": "/stepstracker/static/css/main.f1aed013.css",
+    "main.js": "/stepstracker/static/js/main.2dbdcd5c.js",
     "index.html": "/stepstracker/index.html",
-    "main.64ac80f7.css.map": "/stepstracker/static/css/main.64ac80f7.css.map",
-    "main.c5ddd38f.js.map": "/stepstracker/static/js/main.c5ddd38f.js.map"
+    "main.f1aed013.css.map": "/stepstracker/static/css/main.f1aed013.css.map",
+    "main.2dbdcd5c.js.map": "/stepstracker/static/js/main.2dbdcd5c.js.map"
   },
   "entrypoints": [
-    "static/css/main.64ac80f7.css",
-    "static/js/main.c5ddd38f.js"
+    "static/css/main.f1aed013.css",
+    "static/js/main.2dbdcd5c.js"
   ]
 }
