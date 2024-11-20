@@ -1,6 +1,11 @@
 import { Link } from 'react-router-dom';
 
-export default function LeaderboardTable({ participants = [] }) {
+export default function LeaderboardTable({ 
+  participants = [], 
+  specialTargets = [], 
+  defaultTarget = 10000,
+  dateRange = { start: '', end: '' }  // Added dateRange prop
+}) {
   const calculateAverage = (participant) => {
     if (!participant?.averageSteps) return '-';
     return participant.averageSteps.toLocaleString();
@@ -8,60 +13,91 @@ export default function LeaderboardTable({ participants = [] }) {
 
   const getYesterdaySteps = (participant) => {
     if (!participant?.dailySteps) return '-';
-  
+    
     // Get all dates with non-zero steps
     const datesWithSteps = Object.entries(participant.dailySteps)
       .filter(([_, steps]) => steps > 0)
-      .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA)); // Sort in descending order
-  
-    // Return the most recent day's steps
+      .sort(([dateA], [dateB]) => new Date(dateB) - new Date(dateA));
+
     if (datesWithSteps.length > 0) {
       const [_, steps] = datesWithSteps[0];
       return steps.toLocaleString();
     }
-  
     return '-';
+  };
+  const getChallengeDuration = (startDate, endDate) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+  };
+  
+  const getParticipantTarget = (participant, date) => {
+    const special = specialTargets.find(t => t.name.toLowerCase() === participant.name.toLowerCase());
+    
+    if (!special) return defaultTarget;
+  
+    // Calculate if within special period
+    const totalDays = getChallengeDuration(dateRange.start, dateRange.end);
+    const specialDays = Math.ceil((special.duration / 100) * totalDays);
+    
+    if (!date) return special.target;
+  
+    const start = new Date(dateRange.start);
+    const current = new Date(date);
+    start.setHours(0, 0, 0, 0);
+    current.setHours(0, 0, 0, 0);
+    
+    const daysDiff = Math.floor((current - start) / (1000 * 60 * 60 * 24));
+    return daysDiff < specialDays ? special.target : defaultTarget;
   };
 
   const calculateGoalPercentage = (participant) => {
-    const dailyGoal = participant.name.toLowerCase() === 'thiruvai' ? 7000 : 10000;
-    const percentage = (participant.averageSteps / dailyGoal) * 100;
+    const targetSteps = getParticipantTarget(participant);
+    const percentage = (participant.averageSteps / targetSteps) * 100;
     return percentage;
   };
+
+  const hasSpecialTarget = (participant) => {
+    return specialTargets.some(t => t.name.toLowerCase() === participant.name.toLowerCase());
+  };
+
 
   const getParticipantStatus = (participant) => {
     if (!participant?.dailySteps) return null;
     
-    const targetSteps = participant.name.toLowerCase() === 'thiruvai' ? 7000 : 10000;
+    const special = specialTargets.find(t => t.name.toLowerCase() === participant.name.toLowerCase());
+    const targetSteps = special ? special.target : defaultTarget;
     
+    // Count days below target
     const daysBelow = Object.entries(participant.dailySteps)
       .filter(([date, steps]) => {
-        return steps !== 0 && steps !== null && steps < targetSteps;
+        // Only count days with actual data (non-zero)
+        if (steps === 0 || steps === null) return false;
+        
+        // Debug log
+        console.log(`Checking ${participant.name} for ${date}:`);
+        console.log(`Steps: ${steps}, Target: ${targetSteps}`);
+        console.log(`Below target: ${steps < targetSteps}`);
+        
+        return steps < targetSteps;
       })
       .length;
+  
 
-    if (participant.name.toLowerCase() === 'thiruvai') {
-      if (daysBelow > 2) {
-        return <span className="ml-2 text-xs px-2 py-1 bg-red-900/50 text-red-400 rounded">Disqualified (7k)</span>;
-      } else if (daysBelow === 2) {
-        return <span className="ml-2 text-xs px-2 py-1 bg-orange-900/50 text-orange-400 rounded">Insufficient steps (7k)</span>;
-      } else if (daysBelow === 1) {
-        return <span className="ml-2 text-xs px-2 py-1 bg-yellow-900/50 text-yellow-400 rounded">&lt;7k</span>;
-      }
-      return null;
-    }
-
+    console.log(`${participant.name} has ${daysBelow} days below target`);
+  
+    const suffix = special ? ` (${targetSteps/1000}k)` : '';
+  
     if (daysBelow > 2) {
-      return <span className="ml-2 text-xs px-2 py-1 bg-red-900/50 text-red-400 rounded">Disqualified</span>;
+      return <span className="ml-2 text-xs px-2 py-1 bg-red-900/50 text-red-400 rounded">Disqualified{suffix}</span>;
     } else if (daysBelow === 2) {
-      return <span className="ml-2 text-xs px-2 py-1 bg-orange-900/50 text-orange-400 rounded">Insufficient steps</span>;
+      return <span className="ml-2 text-xs px-2 py-1 bg-orange-900/50 text-orange-400 rounded">Insufficient steps{suffix}</span>;
     } else if (daysBelow === 1) {
-      return <span className="ml-2 text-xs px-2 py-1 bg-yellow-900/50 text-yellow-400 rounded">&lt;10k</span>;
+      return <span className="ml-2 text-xs px-2 py-1 bg-yellow-900/50 text-yellow-400 rounded">&lt;{targetSteps/1000}k</span>;
     }
     return null;
   };
 
-  // Sort participants by goal percentage
   const sortedParticipants = [...participants].sort((a, b) => calculateGoalPercentage(b) - calculateGoalPercentage(a));
 
   return (
@@ -107,6 +143,7 @@ export default function LeaderboardTable({ participants = [] }) {
                           {participant.name 
                             ? participant.name.charAt(0).toUpperCase() + participant.name.slice(1)
                             : 'Unknown'}
+                          {hasSpecialTarget(participant) && <span className="ml-1">⭐</span>}
                         </span>
                         {getParticipantStatus(participant)}
                       </div>
