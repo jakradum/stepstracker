@@ -128,8 +128,8 @@ export default function LeaderboardTable({
                   </div>
                 </td>
                 <td className="py-4">
-                  <Link 
-                    to={`/${participant.name?.toLowerCase() ?? ''}`} 
+                  <Link
+                    to={`/${participant.name?.toLowerCase() ?? ''}`}
                     className="no-underline text-inherit hover:text-cyan-400 transition-colors"
                   >
                     <div className="flex items-center gap-3">
@@ -140,34 +140,39 @@ export default function LeaderboardTable({
                       </div>
                       <div className="flex items-center">
                         <span className="font-medium">
-                          {participant.name 
+                          {participant.name
                             ? participant.name.charAt(0).toUpperCase() + participant.name.slice(1)
                             : 'Unknown'}
-                          {hasSpecialTarget(participant) && <span className="ml-1">⭐</span>}
+                          {hasSpecialTarget(participant) && (
+                            <span className="ml-1 group relative inline-block">
+                              ⭐
+                              <span className="absolute hidden group-hover:block bg-slate-700 text-xs text-gray-300 px-2 py-1 rounded -top-8 left-0 whitespace-nowrap z-10">
+                                Customised daily target
+                              </span>
+                            </span>
+                          )}{' '}
                         </span>
                         {getParticipantStatus(participant)}
                       </div>
                     </div>
                   </Link>
                 </td>
-                <td className="py-4 text-right">
-                  {participant.totalSteps?.toLocaleString() ?? '-'}
-                </td>
+                <td className="py-4 text-right">{participant.totalSteps?.toLocaleString() ?? '-'}</td>
                 <td className="py-4 text-right">{calculateAverage(participant)}</td>
                 <td className="py-4 text-right">
-                  <span className={`${
-                    calculateGoalPercentage(participant) >= 100 
-                      ? 'text-green-400' 
-                      : calculateGoalPercentage(participant) >= 90 
-                        ? 'text-yellow-400' 
+                  <span
+                    className={`${
+                      calculateGoalPercentage(participant) >= 100
+                        ? 'text-green-400'
+                        : calculateGoalPercentage(participant) >= 90
+                        ? 'text-yellow-400'
                         : 'text-gray-400'
-                  }`}>
+                    }`}
+                  >
                     {calculateGoalPercentage(participant).toFixed(1)}%
                   </span>
                 </td>
-                <td className="py-4 text-right pr-4">
-                  {getYesterdaySteps(participant)}
-                </td>
+                <td className="py-4 text-right pr-4">{getYesterdaySteps(participant)}</td>
               </tr>
             ))}
           </tbody>

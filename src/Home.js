@@ -91,10 +91,15 @@ export default function Home() {
     (prev, current) => (current.averageSteps > prev.averageSteps ? current : prev),
     leaderboardData.participants[0] || { name: '', averageSteps: 0, totalSteps: 0 }
   );
-
+  const getWinnerTarget = () => {
+    const special = leaderboardData.config.specialTargets.find(
+      t => t.name.toLowerCase() === projectedWinner.name.toLowerCase()
+    );
+    return special ? special.target : defaultGoal;
+  };
   const circumference = 2 * Math.PI * 70;
   const strokeDashoffset = circumference - (progressPercentage / 100) * circumference;
-  const winnerProgress = (projectedWinner.totalSteps / defaultGoal) * 100;
+  const winnerProgress = (projectedWinner.averageSteps / getWinnerTarget()) * 100;
 
   if (isLoading) {
     return (
@@ -242,7 +247,7 @@ export default function Home() {
                           }}
                         />
                       </div>
-                      <p className="text-sm text-center text-gray-400">{Math.round(winnerProgress)}% of goal</p>
+                      <p className="text-sm text-center text-gray-400">{Math.round(winnerProgress)}% of daily goal</p> {/* claude can you show this as a % of their daily goal, in case their target is different from the standard 10k */}
                     </div>
                   </div>
                 </div>
