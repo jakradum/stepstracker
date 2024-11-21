@@ -5,7 +5,7 @@ export default function LeaderboardTable({
   specialTargets = [], 
   defaultTarget = 10000,
   dateRange = { start: '', end: '' },
-  maxMissedDays = 2  
+  maxMissedDays
 }) {
   const calculateAverage = (participant) => {
     if (!participant?.averageSteps) return '-';
@@ -68,22 +68,20 @@ export default function LeaderboardTable({
     const special = specialTargets.find(t => t.name.toLowerCase() === participant.name.toLowerCase());
     const targetSteps = special ? special.target : defaultTarget;
     
-    // Count days below target (excluding zero/null days)
     const daysBelow = Object.entries(participant.dailySteps)
-      .filter(([_, steps]) => steps > 0)  // Only count non-zero days
-      .filter(([_, steps]) => steps < targetSteps)  // Count days below target
+      .filter(([_, steps]) => steps > 0)
+      .filter(([_, steps]) => steps < targetSteps)
       .length;
   
-    console.log(`${participant.name}: ${daysBelow} days below target of ${targetSteps}, maxMissedDays: ${maxMissedDays}`);
+    console.log(`${participant.name}: ${daysBelow} days below target of ${targetSteps}, maxMissed: ${maxMissedDays}`);
   
     const suffix = special ? ` (${targetSteps/1000}k)` : '';
   
-    // Now using maxMissedDays from config
-    if (daysBelow > maxMissedDays) {  // Only disqualify if exceeding maxMissedDays
+    if (daysBelow > maxMissedDays) {
       return <span className="ml-2 text-xs px-2 py-1 bg-red-900/50 text-red-400 rounded">
         Disqualified{suffix}
       </span>;
-    } else if (daysBelow > 0) {  // Show warning for any days below but not exceeding max
+    } else if (daysBelow > 0) {
       return <span className="ml-2 text-xs px-2 py-1 bg-yellow-900/50 text-yellow-400 rounded">
         {daysBelow} day{daysBelow !== 1 ? 's' : ''} below target{suffix}
       </span>;
