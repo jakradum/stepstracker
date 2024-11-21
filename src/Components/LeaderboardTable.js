@@ -4,7 +4,8 @@ export default function LeaderboardTable({
   participants = [], 
   specialTargets = [], 
   defaultTarget = 10000,
-  dateRange = { start: '', end: '' }  // Added dateRange prop
+  dateRange = { start: '', end: '' },
+  maxMissedDays = 2  
 }) {
   const calculateAverage = (participant) => {
     if (!participant?.averageSteps) return '-';
@@ -61,39 +62,31 @@ export default function LeaderboardTable({
     return specialTargets.some(t => t.name.toLowerCase() === participant.name.toLowerCase());
   };
 
-
   const getParticipantStatus = (participant) => {
     if (!participant?.dailySteps) return null;
     
     const special = specialTargets.find(t => t.name.toLowerCase() === participant.name.toLowerCase());
     const targetSteps = special ? special.target : defaultTarget;
     
-    // Count days below target
+    // Count days below target (excluding zero/null days)
     const daysBelow = Object.entries(participant.dailySteps)
-      .filter(([date, steps]) => {
-        // Only count days with actual data (non-zero)
-        if (steps === 0 || steps === null) return false;
-        
-        // Debug log
-        console.log(`Checking ${participant.name} for ${date}:`);
-        console.log(`Steps: ${steps}, Target: ${targetSteps}`);
-        console.log(`Below target: ${steps < targetSteps}`);
-        
-        return steps < targetSteps;
-      })
+      .filter(([_, steps]) => steps > 0)  // Only count non-zero days
+      .filter(([_, steps]) => steps < targetSteps)  // Count days below target
       .length;
   
-
-    console.log(`${participant.name} has ${daysBelow} days below target`);
+    console.log(`${participant.name}: ${daysBelow} days below target of ${targetSteps}, maxMissedDays: ${maxMissedDays}`);
   
     const suffix = special ? ` (${targetSteps/1000}k)` : '';
   
-    if (daysBelow > 2) {
-      return <span className="ml-2 text-xs px-2 py-1 bg-red-900/50 text-red-400 rounded">Disqualified{suffix}</span>;
-    } else if (daysBelow === 2) {
-      return <span className="ml-2 text-xs px-2 py-1 bg-orange-900/50 text-orange-400 rounded">Insufficient steps{suffix}</span>;
-    } else if (daysBelow === 1) {
-      return <span className="ml-2 text-xs px-2 py-1 bg-yellow-900/50 text-yellow-400 rounded">&lt;{targetSteps/1000}k</span>;
+    // Now using maxMissedDays from config
+    if (daysBelow > maxMissedDays) {  // Only disqualify if exceeding maxMissedDays
+      return <span className="ml-2 text-xs px-2 py-1 bg-red-900/50 text-red-400 rounded">
+        Disqualified{suffix}
+      </span>;
+    } else if (daysBelow > 0) {  // Show warning for any days below but not exceeding max
+      return <span className="ml-2 text-xs px-2 py-1 bg-yellow-900/50 text-yellow-400 rounded">
+        {daysBelow} day{daysBelow !== 1 ? 's' : ''} below target{suffix}
+      </span>;
     }
     return null;
   };

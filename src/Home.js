@@ -247,7 +247,8 @@ export default function Home() {
                           }}
                         />
                       </div>
-                      <p className="text-sm text-center text-gray-400">{Math.round(winnerProgress)}% of daily goal</p> {/* claude can you show this as a % of their daily goal, in case their target is different from the standard 10k */}
+                      <p className="text-sm text-center text-gray-400">{Math.round(winnerProgress)}% of daily goal</p>{' '}
+                      {/* claude can you show this as a % of their daily goal, in case their target is different from the standard 10k */}
                     </div>
                   </div>
                 </div>
@@ -263,6 +264,8 @@ export default function Home() {
               participants={leaderboardData.participants}
               specialTargets={leaderboardData.config.specialTargets}
               defaultTarget={leaderboardData.config.target}
+              dateRange={leaderboardData.dateRange}
+              maxMissedDays={leaderboardData.config.maxMissedDays}
             />
           </>
         )}
